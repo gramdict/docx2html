@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -121,6 +121,7 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             text = text.Replace("</b>:", ":</b>");
             text = text.Replace("иват</b>ь", "ивать</b>");
             text = text.Replace("сн-нсв", "св-нсв");
+            text = Regex.Replace(text, @"(\d)" + Regex.Escape("<sup>*</sup>"), "$1°");
             text = text.Replace("дать</b> св △ b/c':́ <i>", "дать</b> св △ b/c': <i>");
 
             File.WriteAllText("all.txt", text);
