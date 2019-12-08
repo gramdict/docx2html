@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -123,6 +123,7 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             text = text.Replace("сн-нсв", "св-нсв");
             text = Regex.Replace(text, @"(\d)" + Regex.Escape("<sup>*</sup>"), "$1°");
             text = text.Replace("дать</b> св △ b/c':́ <i>", "дать</b> св △ b/c': <i>");
+            text = text.Replace("✧ ́за́", "✧ за́"); // лишний знак ударения в статье город
 
             File.WriteAllText("all.txt", text);
 
