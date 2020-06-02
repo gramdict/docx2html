@@ -37,9 +37,9 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
         }
     }
 
-    class Program
+    static class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             ConvertNames();
             ConvertMainDictionary();
@@ -124,6 +124,9 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             text = Regex.Replace(text, @"(\d)" + Regex.Escape("<sup>*</sup>"), "$1°");
             text = text.Replace("дать</b> св △ b/c':́ <i>", "дать</b> св △ b/c': <i>");
             text = text.Replace("✧ ́за́", "✧ за́"); // лишний знак ударения в статье город
+            text = text.Replace(";<br/><b>", "\r\n<b>");
+            text = text.Replace("о<i>т</i>", "<i>от</i>");
+            text = Regex.Replace(text, ";<br/>\\s*♠?\\s*<b>", "\r\n♠ <b>");
 
             File.WriteAllText("all.txt", text);
 
@@ -144,7 +147,8 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
 
         public static string ToLine(Entry e)
         {
-            return $"{e.Lemma}|{e.Symbol}" + (string.IsNullOrEmpty(e.Grammar) ? "" : $"|{e.Grammar}");
+            return $"{e.Lemma}|" + string.Join("<br/>", e.Definitions.Select(
+                def => $"{def.Symbol}" + (string.IsNullOrEmpty(def.Grammar) ? "" : $"|{def.Grammar}")));
         }
 
         static Entry Parse(string line, int number)
@@ -153,27 +157,34 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             if (!match.Success) throw new Exception($"No match: ({number+1}) {line}");
             string parensSymbolGrammar = match.Groups["rest"].Value;
             (string symbolGrammar, string parens) = SplitParens(parensSymbolGrammar);
-            string fullestSymbolsRegex = GetFullestSymbolsRegex();
-            string symbol;
-            string grammar;
+            IReadOnlyList<Definition> definitions;
             if (match.Groups["lemma"].Value.EndsWith(":"))
             {
-                symbol = "";
-                grammar = symbolGrammar;
+                definitions = new [] {new Definition {Symbol = "", Grammar = symbolGrammar}};
             }
             else
             {
-                Match match1 = Regex.Match(symbolGrammar, $@"^\s*(?<symbol>{fullestSymbolsRegex}(,|:|;)?)(\s+(?<grammar>.*))?$");
-                if (!match1.Success) throw new Exception("Regex failed: " + line);
-                symbol = match1.Groups["symbol"].Value.TrimEnd();
-                grammar = match1.Groups["grammar"].Value;
+                definitions = symbolGrammar.Split("<br/>")
+                    .Select(def => ParseDefinition(line, def))
+                    .ToList();
             }
             return new Entry
             {
                 Lemma = match.Groups["lemma"].Value,
-                Symbol = symbol,
-                Grammar = grammar
+                Definitions = definitions
             };
+        }
+
+        private static Definition ParseDefinition(string line, string symbolGrammar)
+        {
+            Match match1 = Regex.Match(symbolGrammar, $@"^♠?\s*(?<symbol>{GetFullestSymbolsRegex()}(,|:|;)?)(\s+(?<grammar>.*))?$");
+            if (!match1.Success) throw new Exception("Regex failed: " + line);
+            var def = new Definition
+            {
+                Symbol = match1.Groups["symbol"].Value.TrimEnd(),
+                Grammar = match1.Groups["grammar"].Value
+            };
+            return def;
         }
 
         public static Entry ParseName(string line, int number)
@@ -184,8 +195,11 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             return new Entry
             {
                 Lemma = match.Groups["lemma"].Value,
-                Symbol = match.Groups["symbol"].Value,
-                Grammar = match.Groups["grammar"].Value
+                Definitions = new []{new Definition
+                {
+                    Symbol = match.Groups["symbol"].Value,
+                    Grammar = match.Groups["grammar"].Value
+                }}
             };
         }
         
@@ -255,9 +269,15 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             return Regex.Replace(s, "_", m => ++i % 2 == 1 ? "<i>" : "</i>");
         }
 
+        public class Definition
+        {
+            public string Symbol, Grammar;
+        }
+        
         public class Entry
         {
-            public string Lemma, Symbol, Grammar;
+            public string Lemma;
+            public IEnumerable<Definition> Definitions;
         }
         
         static void CleanDom(string htmlInputPath, string outputPath)
