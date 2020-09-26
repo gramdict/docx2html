@@ -61,9 +61,9 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
 
         static void ConvertMainDictionary()
         {
-            string path = @"..\..\..\..\docxconverter";
+            string path = @"..\..\..";
 
-            string filePath = Path.Combine(path, "all2.htm");
+            string filePath = Path.Combine(path, "all.html");
 
             const string outputPath = "zal.txt";
             var fileInfo = new FileInfo(outputPath);
