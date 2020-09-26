@@ -52,16 +52,11 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
                 {
                     "(Вели́кий) Но́вгород (п +) м 1а",
                 })
-                .Select(line => line.Replace("мо+", "мо⁺"))
-                .Select(line => line.Replace("жо+", "жо⁺"))
                 .Select(line => line.Replace(" см. ", " <i>см.</i> "))
-                .Select(line => line.Replace("(река)", "(<i>река</i>)"))
-                .Select(line => line.Replace("(страна)", "(<i>страна</i>)"))
-                .Select(line => line.Replace("(гопокор.)", "(<i>гопокор.</i>)"))
                 .Select(ParseName)
                 .Select(ToLine);
                 
-            File.WriteAllLines(@"C:\Code\gramdict.ru.api\ZalizniakDictionary\names.txt", names);
+            File.WriteAllLines(@"C:\Code\morpher\dotnet20\ZalizniakDictionary\names.txt", names);
         }
 
         static void ConvertMainDictionary()
@@ -126,13 +121,44 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             text = text.Replace("✧ ́за́", "✧ за́"); // лишний знак ударения в статье город
             text = text.Replace(";<br/><b>", "\r\n<b>");
             text = text.Replace("о<i>т</i>", "<i>от</i>");
+            text = text.Replace("пс́оу", "псо́у");
+            text = text.Replace("<b>из-за</b>", "<b>и́з-за</b>");
+            text = text.Replace("<b>из-под</b>", "<b>и́з-под</b>");
+            text = text.Replace("<b>из-подо</b>", "<b>и́з-подо</b>");
+            text = text.Replace("<b>по-за</b>", "<b>по́-за</b>");
+            text = text.Replace("<b>по-над</b>", "<b>по́-над</b>");
+            text = text.Replace("<b>подо</b>", "<b>по́до</b>");
+            text = text.Replace("<b>надо</b>", "<b>на́до</b>");
+            text = text.Replace("<b>безо</b>", "<b>бе́зо</b>");
+            text = text.Replace("<b>предо</b>", "<b>пре́до</b>");
+            text = text.Replace("<b>ото</b>", "<b>о́то</b>");
+            text = text.Replace("<b>изо</b>", "<b>и́зо</b>");
+            text = text.Replace("сужден́о", "суждено́");
+            text = text.Replace("<b>аир</b>", "<b>а́ир</b>");
+            text = text.Replace("<b>бородинский</b>", "<b>бороди́нский</b>");
+            text = text.Replace("<b>дрочона</b>", "<b>дрочо́на</b>");
+            text = text.Replace("<b>лысенковский</b>", "<b>лысе́нковский</b>");
+            text = text.Replace("<b>шлиссельбуржец</b>", "<b>шлиссельбу́ржец</b>");
+            text = text.Replace("<b>подслащивать</b>", "<b>подсла́щивать</b>");
+            text = text.Replace("<b>приспускать</b>", "<b>приспуска́ть</b>");
+            text = text.Replace("<b>н́ельмовый</b>", "<b>не́льмовый</b>");
+            text = text.Replace("<b>т́естовый</b>", "<b>те́стовый</b>");
+            text = text.Replace("<b>капр́изник</b>", "<b>капри́зник</b>");
+            text = text.Replace("<b>краснодер́евщик</b>", "<b>краснодере́вщик</b>");
+            text = text.Replace("<b>желтол́озник</b>", "<b>желтоло́зник</b>");
+            text = text.Replace("<b>придор́ожник</b>", "<b>придоро́жник</b>");
+            text = text.Replace("<b>железнодор́ожник</b>", "<b>железнодоро́жник</b>");
+            text = text.Replace("<b>неприме́тн́ость</b>", "<b>неприме́тность</b>");
+            text = text.Replace("<b>ѓикнуть</b>", "<b>ги́кнуть</b>");
+            text = text.Replace("<b>чил́икнуть</b>", "<b>чили́кнуть</b>");
+                                    
             text = Regex.Replace(text, ";<br/>\\s*♠?\\s*<b>", "\r\n♠ <b>");
 
             File.WriteAllText("all.txt", text);
 
             string[] lines = text.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
 
-            string finalOutputPath = @"C:\Code\gramdict.ru.api\ZalizniakDictionary\zaliznyak.txt";
+            string finalOutputPath = @"C:\Code\morpher\dotnet20\ZalizniakDictionary\zaliznyak.txt";
 
             File.WriteAllLines(finalOutputPath, lines
                 .Where(line => !line.Contains("TODO:") && !string.IsNullOrWhiteSpace(line))
