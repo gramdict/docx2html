@@ -52,7 +52,10 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
                 {
                     "(Вели́кий) Но́вгород (п +) м 1а",
                 })
-                .Select(line => line.Replace(" см. ", " <i>см.</i> "))
+                .Select(line => line
+                    .Replace(" см. ", " <i>см.</i> ")
+                    .Replace("мн. от ", "мн. <i>от</i> ")
+                )
                 .Select(ParseName)
                 .Select(ToLine);
                 
@@ -151,6 +154,14 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             text = text.Replace("<b>неприме́тн́ость</b>", "<b>неприме́тность</b>");
             text = text.Replace("<b>ѓикнуть</b>", "<b>ги́кнуть</b>");
             text = text.Replace("<b>чил́икнуть</b>", "<b>чили́кнуть</b>");
+            text = text.Replace("<b>ѓалицкий</b>", "<b>га́лицкий</b>");
+            text = text.Replace("<b>перебега́тъ</b>", "<b>перебега́ть</b>");
+            text = text.Replace("<b>заса́харивать-</b>", "<b>заса́харивать</b>");
+            text = text.Replace("долев́ой", "долево́й");
+            text = text.Replace("<i> ", " <i>");
+            text = text.Replace(" </i>", "</i> ");
+            text = text.Replace("</i>.", ".</i>");
+            text = Regex.Replace(text, @"<i>Р\. мн\. затрудн\. \((.+)</i>\)", "<i>Р. мн. затрудн.</i> (<i>$1</i>)");
                                     
             text = Regex.Replace(text, ";<br/>\\s*♠?\\s*<b>", "\r\n♠ <b>");
 
