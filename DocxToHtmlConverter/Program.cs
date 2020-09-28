@@ -161,8 +161,10 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             text = text.Replace("<i> ", " <i>");
             text = text.Replace(" </i>", "</i> ");
             text = text.Replace("</i>.", ".</i>");
+            text = text.Replace("мо-жо (<i>бранно о человеке</i>)", "мо-жо 1a (<i>бранно о человеке</i>)");
+            text = text.Replace("<i>Р. мн. затрудн. (бранно о человеке</i>)", "<i>Р. мн. затрудн.</i> (<i>бранно о человеке</i>)");
+
             text = Regex.Replace(text, @"<i>Р\. мн\. затрудн\. \((.+)</i>\)", "<i>Р. мн. затрудн.</i> (<i>$1</i>)");
-                                    
             text = Regex.Replace(text, ";<br/>\\s*♠?\\s*<b>", "\r\n♠ <b>");
 
             File.WriteAllText("all.txt", text);
