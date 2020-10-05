@@ -50,7 +50,7 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             var names = File.ReadLines(@"..\..\names.txt")
                 .Except(new []
                 {
-                    "(Вели́кий) Но́вгород (п +) м 1а",
+                    "(Вели́кий) Но́вгород (п +) м 1a",
                 })
                 .Select(line => line
                     .Replace(" см. ", " <i>см.</i> ")
@@ -158,11 +158,13 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             text = text.Replace("<b>перебега́тъ</b>", "<b>перебега́ть</b>");
             text = text.Replace("<b>заса́харивать-</b>", "<b>заса́харивать</b>");
             text = text.Replace("долев́ой", "долево́й");
+            text = text.Replace("́ уже", "у́же");
             text = text.Replace("<i> ", " <i>");
             text = text.Replace(" </i>", "</i> ");
             text = text.Replace("</i>.", ".</i>");
             text = text.Replace("мо-жо (<i>бранно о человеке</i>)", "мо-жо 1a (<i>бранно о человеке</i>)");
             text = text.Replace("<i>Р. мн. затрудн. (бранно о человеке</i>)", "<i>Р. мн. затрудн.</i> (<i>бранно о человеке</i>)");
+            text = text.Replace("Кул́игин", "Кули́гин");
 
             text = Regex.Replace(text, @"<i>Р\. мн\. затрудн\. \((.+)</i>\)", "<i>Р. мн. затрудн.</i> (<i>$1</i>)");
             text = Regex.Replace(text, ";<br/>\\s*♠?\\s*<b>", "\r\n♠ <b>");
