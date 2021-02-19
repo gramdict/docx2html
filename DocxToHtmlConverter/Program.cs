@@ -167,6 +167,7 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             text = text.Replace("Кул́игин", "Кули́гин");
             text = text.Replace("в́скри́кнуть", "вскри́кнуть");
             text = text.Replace("зу́б́ча́тый", "зу́бча́тый");
+            text = text.Replace("<i>кф (затрудн.</i>)", "<i>кф (затрудн.)</i>");
 
             text = Regex.Replace(text, @"<i>Р\. мн\. затрудн\. \((.+)</i>\)", "<i>Р. мн. затрудн.</i> (<i>$1</i>)");
             text = Regex.Replace(text, ";<br/>\\s*♠?\\s*<b>", "\r\n♠ <b>");
