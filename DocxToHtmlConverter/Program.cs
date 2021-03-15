@@ -16,7 +16,7 @@ namespace DocxToHtmlConverter
             var stopwatch = Stopwatch.StartNew();
 
             File.WriteAllLines(args[1],
-                ConvertNames(File.ReadLines(@"..\..\names.txt")).Select(ToOutputFormat));
+                ConvertNames(File.ReadLines(@"..\..\..\names.txt")).Select(ToOutputFormat));
 
             File.WriteAllLines(args[0], 
                 ConvertCommonPart(GetCleanHtml(@"..\..\..\all.html")).Select(ToOutputFormat));
