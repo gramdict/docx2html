@@ -202,7 +202,7 @@ namespace DocxToHtmlConverter
 
         private static Definition ParseDefinition(string line, string symbolGrammar)
         {
-            Match match1 = Regex.Match(symbolGrammar, $@"^♠?\s*(?<symbol>{GetFullestSymbolsRegex()}(,|:|;)?)(\s+(?<grammar>.*))?$");
+            Match match1 = Regex.Match(symbolGrammar, $@"^♠?\s*(?<symbol>{FullestSymbolsRegex}(,|:|;)?)(\s+(?<grammar>.*))?$");
             if (!match1.Success) throw new Exception("Regex failed: " + line);
             var def = new Definition
             {
@@ -212,9 +212,11 @@ namespace DocxToHtmlConverter
             return def;
         }
 
-        public static Entry ParseName(string line, int number)
+        private static readonly string FullestSymbolsRegex = GetFullestSymbolsRegex();
+        
+        static Entry ParseName(string line, int number)
         {
-            string fullestSymbolsRegex = GetFullestSymbolsRegex();
+            string fullestSymbolsRegex = FullestSymbolsRegex;
             Match match = Regex.Match(line, $@"^(?<lemma>[-’ а-яА-ЯёЁ\u0300\u0301\(\)]+:?)\s+(?<symbol>{fullestSymbolsRegex}(,|:|;)?)(\s+(?<grammar>.+))?$");
             if (!match.Success) throw new Exception($"No match: ({number+1}) {line}");
             return new Entry
@@ -267,7 +269,9 @@ namespace DocxToHtmlConverter
             string formsRegex = RegexEscape("_повел. от_,_наст. 3 ед. от_".Split(','));
             // TODO нп, безл., многокр.
 
-            string symbolsRegex = RegexEscape(Symbols);
+            string symbolsRegex = RegexEscape("ф.,мо⁺,жо⁺,м,мо,ж,жо,с,со,жо,мо-жо,мн.,мн. одуш.,мн. неод.,мн. _от_,п,мс,мс-п,числ.,числ.-п,св,нсв,св-нсв,св/нсв,н,част.,част.(_усилительная_),союз,предл.,предик.,вводн.,межд.,сравн.,§1,§2,предикативное мс,_см._"
+                .Split(',')
+                .OrderByDescending(s => s.Length).ToArray());
 
             string slashSymbolsRegex = $"(//?({symbolsRegex}))?";
             string fullSymbolsRegex = $"({symbolsRegex}){slashSymbolsRegex}{slashSymbolsRegex}";
@@ -278,10 +282,6 @@ namespace DocxToHtmlConverter
             string fullestSymbolsRegex = $"({genPluralRegex}|(({formsRegex}\\s+)?{fullSymbolsRegex}))";
             return fullestSymbolsRegex;
         }
-
-        private static readonly string[] Symbols = "ф.,мо⁺,жо⁺,м,мо,ж,жо,с,со,жо,мо-жо,мн.,мн. одуш.,мн. неод.,мн. _от_,п,мс,мс-п,числ.,числ.-п,св,нсв,св-нсв,св/нсв,н,част.,част.(_усилительная_),союз,предл.,предик.,вводн.,межд.,сравн.,§1,§2,предикативное мс,_см._"
-            .Split(',')
-            .OrderByDescending(s => s.Length).ToArray();
 
         static string RegexEscape(string[] symbols)
         {
