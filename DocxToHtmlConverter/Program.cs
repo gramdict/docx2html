@@ -1,54 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
-using NUnit.Framework;
 
 namespace DocxToHtmlConverter
 {
-    [TestFixture]
-    public class Tests
-    {
-        [Test]
-        public void Test1()
-        {
-            var doc = new HtmlDocument();
-            doc.LoadHtml(@"<p class=MsoNormal><u><span lang=RU style='font-size:6.0pt;mso-bidi-font-size:
-10.0pt;font-family:""ZapfDingbats BT""'>t</span></u><u><span lang=RU
-style='font-family:TimesET'><span style='mso-tab-count:1'>                     </span><b
-style='mso-bidi-font-weight:normal'>пацанв</b></span></u><b style='mso-bidi-font-weight:
-normal'><u><span lang=RU style='font-family:Tim_acc'>а</span></u></b><u><span
-lang=RU style='font-family:TimesET'><span style='mso-tab-count:1'>      </span>ж<span
-style='mso-tab-count:1'>             </span>1b— (<i style='mso-bidi-font-style:
-normal'>собир.</i>)<o:p></o:p></span></u></p>
-");
-            Assert.AreEqual("♠ <b>пацанва́</b> ж 1b— (<i>собир.</i>)", Program.ToText(doc.DocumentNode.FirstChild));
-        }
-
-        [Test]
-        public void Test2()
-        {
-            var doc = new HtmlDocument();
-            doc.LoadHtml(@"<b><sup style='font-family:""ZapfDingbats BT""'>t</sup><sup> 1-4</sup>ла́ва</b> ж 1a");
-            Assert.AreEqual("♠<sup> 1-4</sup>ла́ва", Program.ToText(doc.DocumentNode.FirstChild));
-        }
-    }
-
     static class Program
     {
         static void Main()
         {
-            ConvertNames();
-            ConvertMainDictionary();
+            var stopwatch = Stopwatch.StartNew();
+
+            File.WriteAllLines(@"C:\Code\morpher\dotnet20\ZalizniakDictionary\names.txt", 
+                ConvertNames(File.ReadLines(@"..\..\names.txt")).Select(ToOutputFormat));
+            
+            File.WriteAllLines(@"C:\Code\morpher\dotnet20\ZalizniakDictionary\zaliznyak.txt", 
+                ConvertCommonPart().Select(ToOutputFormat));
+            
+            Console.WriteLine($"{stopwatch.Elapsed.TotalMilliseconds:N0} ms");
         }
 
-        static void ConvertNames()
-        {
-            var names = File.ReadLines(@"..\..\names.txt")
-                .Except(new []
+        private static IEnumerable<Entry> ConvertNames(IEnumerable<string> lines) =>
+            lines
+                .Except(new[]
                 {
                     "(Вели́кий) Но́вгород (п +) м 1a",
                 })
@@ -56,24 +34,11 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
                     .Replace(" см. ", " <i>см.</i> ")
                     .Replace("мн. от ", "мн. <i>от</i> ")
                 )
-                .Select(ParseName)
-                .Select(ToLine);
-                
-            File.WriteAllLines(@"C:\Code\morpher\dotnet20\ZalizniakDictionary\names.txt", names);
-        }
+                .Select(ParseName);
 
-        static void ConvertMainDictionary()
+        private static IEnumerable<Entry> ConvertCommonPart()
         {
-            string path = @"..\..\..";
-
-            string filePath = Path.Combine(path, "all.html");
-
-            const string outputPath = "zal.txt";
-            var fileInfo = new FileInfo(outputPath);
-            if (!fileInfo.Exists || fileInfo.LastWriteTimeUtc < new FileInfo(filePath).LastWriteTimeUtc)
-                CleanDom(filePath, outputPath);
-
-            string text = File.ReadAllText(outputPath);
+            string text = GetCleanHtml();
 
             text = text.Replace("<![if !supportLists]>t <![endif]>", "");
             text = text.Replace("­", ""); // знак переноса
@@ -163,7 +128,8 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             text = text.Replace(" </i>", "</i> ");
             text = text.Replace("</i>.", ".</i>");
             text = text.Replace("мо-жо (<i>бранно о человеке</i>)", "мо-жо 1a (<i>бранно о человеке</i>)");
-            text = text.Replace("<i>Р. мн. затрудн. (бранно о человеке</i>)", "<i>Р. мн. затрудн.</i> (<i>бранно о человеке</i>)");
+            text = text.Replace("<i>Р. мн. затрудн. (бранно о человеке</i>)",
+                "<i>Р. мн. затрудн.</i> (<i>бранно о человеке</i>)");
             text = text.Replace("Кул́игин", "Кули́гин");
             text = text.Replace("в́скри́кнуть", "вскри́кнуть");
             text = text.Replace("зу́б́ча́тый", "зу́бча́тый");
@@ -176,24 +142,34 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
 
             string[] lines = text.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
 
-            string finalOutputPath = @"C:\Code\morpher\dotnet20\ZalizniakDictionary\zaliznyak.txt";
-
-            File.WriteAllLines(finalOutputPath, lines
+            IEnumerable<Entry> entries = lines
                 .Where(line => !line.Contains("TODO:") && !string.IsNullOrWhiteSpace(line))
                 .Where(line => !line.StartsWith("<b>споко́н</b>"))
                 .Where(line => !line.StartsWith("<b>угль</b>"))
                 .Where(line => !line.StartsWith("<b>жураве́ль</b>"))
                 .Where(line => !line.StartsWith("<b>огнь</b>"))
                 .Where(line => !line.StartsWith("<b>ви́хорь</b>"))
-                .Select(Parse)
-                .Select(ToLine));
+                .Select(Parse);
+            return entries;
         }
 
-        public static string ToLine(Entry e)
+        private static string GetCleanHtml()
         {
-            return $"{e.Lemma}|" + string.Join("<br/>", e.Definitions.Select(
-                def => $"{def.Symbol}" + (string.IsNullOrEmpty(def.Grammar) ? "" : $"|{def.Grammar}")));
+            string path = @"..\..\..";
+
+            string filePath = Path.Combine(path, "all.html");
+
+            const string outputPath = "zal.txt";
+            var fileInfo = new FileInfo(outputPath);
+            if (!fileInfo.Exists || fileInfo.LastWriteTimeUtc < new FileInfo(filePath).LastWriteTimeUtc)
+                CleanDom(filePath, outputPath);
+
+            return File.ReadAllText(outputPath);
         }
+
+        private static string ToOutputFormat(Entry e) =>
+            $"{e.Lemma}|" + string.Join("<br/>", e.Definitions.Select(
+                def => $"{def.Symbol}" + (string.IsNullOrEmpty(def.Grammar) ? "" : $"|{def.Grammar}")));
 
         static Entry Parse(string line, int number)
         {
@@ -284,13 +260,9 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
         static string GetFullestSymbolsRegex()
         {
             string formsRegex = RegexEscape("_повел. от_,_наст. 3 ед. от_".Split(','));
-            string[] symbols =
-                "ф.,мо⁺,жо⁺,м,мо,ж,жо,с,со,жо,мо-жо,мн.,мн. одуш.,мн. неод.,мн. _от_,п,мс,мс-п,числ.,числ.-п,св,нсв,св-нсв,св/нсв,н,част.,част.(_усилительная_),союз,предл.,предик.,вводн.,межд.,сравн.,§1,§2,предикативное мс,_см._"
-                    .Split(',')
-                    .OrderByDescending(s => s.Length).ToArray();
             // TODO нп, безл., многокр.
 
-            string symbolsRegex = RegexEscape(symbols);
+            string symbolsRegex = RegexEscape(Symbols);
 
             string slashSymbolsRegex = $"(//?({symbolsRegex}))?";
             string fullSymbolsRegex = $"({symbolsRegex}){slashSymbolsRegex}{slashSymbolsRegex}";
@@ -301,6 +273,10 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             string fullestSymbolsRegex = $"({genPluralRegex}|(({formsRegex}\\s+)?{fullSymbolsRegex}))";
             return fullestSymbolsRegex;
         }
+
+        private static readonly string[] Symbols = "ф.,мо⁺,жо⁺,м,мо,ж,жо,с,со,жо,мо-жо,мн.,мн. одуш.,мн. неод.,мн. _от_,п,мс,мс-п,числ.,числ.-п,св,нсв,св-нсв,св/нсв,н,част.,част.(_усилительная_),союз,предл.,предик.,вводн.,межд.,сравн.,§1,§2,предикативное мс,_см._"
+            .Split(',')
+            .OrderByDescending(s => s.Length).ToArray();
 
         static string RegexEscape(string[] symbols)
         {
@@ -328,14 +304,14 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
         {
             var doc = new HtmlDocument();
             doc.Load(htmlInputPath, Encoding.UTF8);
-            HtmlNodeCollection entries = doc.DocumentNode.SelectNodes("html/body/div/p");
-            Console.WriteLine(entries.Count);
-            IEnumerable<string> lines = entries
+            File.WriteAllLines(outputPath, CleanHtml(doc));
+        }
+
+        private static IEnumerable<string> CleanHtml(HtmlDocument doc) =>
+            doc.DocumentNode.SelectNodes("html/body/div/p")
                 .Skip(8)
                 .Select(ToText)
-                .Where(line => line.Length > 8); // skip letter headings
-            File.WriteAllLines(outputPath, lines);
-        }
+                .Where(line => line.Length > 8); // Skip section headings
 
         public static string ToText(HtmlNode node)
         {
