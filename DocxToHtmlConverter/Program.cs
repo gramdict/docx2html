@@ -40,6 +40,25 @@ namespace DocxToHtmlConverter
         {
             string text = GetCleanHtml();
 
+            text = CorrectHtml(text);
+
+            File.WriteAllText("all.txt", text);
+
+            string[] lines = text.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
+
+            IEnumerable<Entry> entries = lines
+                .Where(line => !line.Contains("TODO:") && !string.IsNullOrWhiteSpace(line))
+                .Where(line => !line.StartsWith("<b>споко́н</b>"))
+                .Where(line => !line.StartsWith("<b>угль</b>"))
+                .Where(line => !line.StartsWith("<b>жураве́ль</b>"))
+                .Where(line => !line.StartsWith("<b>огнь</b>"))
+                .Where(line => !line.StartsWith("<b>ви́хорь</b>"))
+                .Select(Parse);
+            return entries;
+        }
+
+        private static string CorrectHtml(string text)
+        {
             text = text.Replace("<![if !supportLists]>t <![endif]>", "");
             text = text.Replace("­", ""); // знак переноса
             text = text.Replace("<b>◑</b>", "◑");
@@ -137,20 +156,7 @@ namespace DocxToHtmlConverter
 
             text = Regex.Replace(text, @"<i>Р\. мн\. затрудн\. \((.+)</i>\)", "<i>Р. мн. затрудн.</i> (<i>$1</i>)");
             text = Regex.Replace(text, ";<br/>\\s*♠?\\s*<b>", "\r\n♠ <b>");
-
-            File.WriteAllText("all.txt", text);
-
-            string[] lines = text.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
-
-            IEnumerable<Entry> entries = lines
-                .Where(line => !line.Contains("TODO:") && !string.IsNullOrWhiteSpace(line))
-                .Where(line => !line.StartsWith("<b>споко́н</b>"))
-                .Where(line => !line.StartsWith("<b>угль</b>"))
-                .Where(line => !line.StartsWith("<b>жураве́ль</b>"))
-                .Where(line => !line.StartsWith("<b>огнь</b>"))
-                .Where(line => !line.StartsWith("<b>ви́хорь</b>"))
-                .Select(Parse);
-            return entries;
+            return text;
         }
 
         private static string GetCleanHtml()
@@ -162,7 +168,11 @@ namespace DocxToHtmlConverter
             const string outputPath = "zal.txt";
             var fileInfo = new FileInfo(outputPath);
             if (!fileInfo.Exists || fileInfo.LastWriteTimeUtc < new FileInfo(filePath).LastWriteTimeUtc)
-                CleanDom(filePath, outputPath);
+            {
+                var doc = new HtmlDocument();
+                doc.Load(filePath, Encoding.UTF8);
+                File.WriteAllLines(outputPath, CleanHtml(doc));
+            }
 
             return File.ReadAllText(outputPath);
         }
@@ -298,13 +308,6 @@ namespace DocxToHtmlConverter
         {
             public string Lemma;
             public IEnumerable<Definition> Definitions;
-        }
-        
-        static void CleanDom(string htmlInputPath, string outputPath)
-        {
-            var doc = new HtmlDocument();
-            doc.Load(htmlInputPath, Encoding.UTF8);
-            File.WriteAllLines(outputPath, CleanHtml(doc));
         }
 
         private static IEnumerable<string> CleanHtml(HtmlDocument doc) =>
