@@ -291,7 +291,7 @@ namespace DocxToHtmlConverter
         static string ToHtml(string s)
         {
             int i=0;
-            return Regex.Replace(s, "_", m => ++i % 2 == 1 ? "<i>" : "</i>");
+            return Regex.Replace(s, "_", _ => ++i % 2 == 1 ? "<i>" : "</i>");
         }
 
         public class Definition
