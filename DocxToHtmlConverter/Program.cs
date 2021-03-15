@@ -159,12 +159,13 @@ namespace DocxToHtmlConverter
 
         private static string GetCleanHtml(string filePath)
         {
-            const string cacheFile = "zal.txt";
+            const string cacheFile = "clean-html-cache.txt";
             var fileInfo = new FileInfo(cacheFile);
             if (!fileInfo.Exists || fileInfo.LastWriteTimeUtc < new FileInfo(filePath).LastWriteTimeUtc)
             {
                 var doc = new HtmlDocument();
                 doc.Load(filePath, Encoding.UTF8);
+                Console.WriteLine($"Writing {cacheFile} so subsequent runs are faster.");
                 File.WriteAllLines(cacheFile, CleanHtml(doc));
             }
 
