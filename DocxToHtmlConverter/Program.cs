@@ -11,15 +11,15 @@ namespace DocxToHtmlConverter
 {
     static class Program
     {
-        static void Main()
+        static void Main(string [] args)
         {
             var stopwatch = Stopwatch.StartNew();
 
-            File.WriteAllLines(@"C:\Code\morpher\dotnet20\ZalizniakDictionary\names.txt", 
+            File.WriteAllLines(args[1],
                 ConvertNames(File.ReadLines(@"..\..\names.txt")).Select(ToOutputFormat));
-            
-            File.WriteAllLines(@"C:\Code\morpher\dotnet20\ZalizniakDictionary\zaliznyak.txt", 
-                ConvertCommonPart().Select(ToOutputFormat));
+
+            File.WriteAllLines(args[0], 
+                ConvertCommonPart(GetCleanHtml(@"..\..\..\all.html")).Select(ToOutputFormat));
             
             Console.WriteLine($"{stopwatch.Elapsed.TotalMilliseconds:N0} ms");
         }
@@ -36,15 +36,13 @@ namespace DocxToHtmlConverter
                 )
                 .Select(ParseName);
 
-        private static IEnumerable<Entry> ConvertCommonPart()
+        private static IEnumerable<Entry> ConvertCommonPart(string html)
         {
-            string text = GetCleanHtml();
+            string correctHtml = CorrectHtml(html);
 
-            text = CorrectHtml(text);
+            File.WriteAllText("all.txt", correctHtml);
 
-            File.WriteAllText("all.txt", text);
-
-            string[] lines = text.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
+            string[] lines = correctHtml.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
 
             IEnumerable<Entry> entries = lines
                 .Where(line => !line.Contains("TODO:") && !string.IsNullOrWhiteSpace(line))
@@ -159,22 +157,18 @@ namespace DocxToHtmlConverter
             return text;
         }
 
-        private static string GetCleanHtml()
+        private static string GetCleanHtml(string filePath)
         {
-            string path = @"..\..\..";
-
-            string filePath = Path.Combine(path, "all.html");
-
-            const string outputPath = "zal.txt";
-            var fileInfo = new FileInfo(outputPath);
+            const string cacheFile = "zal.txt";
+            var fileInfo = new FileInfo(cacheFile);
             if (!fileInfo.Exists || fileInfo.LastWriteTimeUtc < new FileInfo(filePath).LastWriteTimeUtc)
             {
                 var doc = new HtmlDocument();
                 doc.Load(filePath, Encoding.UTF8);
-                File.WriteAllLines(outputPath, CleanHtml(doc));
+                File.WriteAllLines(cacheFile, CleanHtml(doc));
             }
 
-            return File.ReadAllText(outputPath);
+            return File.ReadAllText(cacheFile);
         }
 
         private static string ToOutputFormat(Entry e) =>
