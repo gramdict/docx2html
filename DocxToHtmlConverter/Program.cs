@@ -270,8 +270,11 @@ namespace DocxToHtmlConverter
                 def => def.Symbol + (string.IsNullOrEmpty(def.Grammar) ? "" : $"|{def.Grammar}")));
         
         private static string ToOutputFormat2(Entry e) =>
-            $"{e.Lemma} " + string.Join(" ", e.Definitions.Select(
-                def => def.Symbol + (string.IsNullOrEmpty(def.Grammar) ? "" : $" {def.Grammar}")))
+            (string.IsNullOrEmpty(e.Numbers) ? "" : e.Numbers + "/") +
+            $"{e.Lemma} " 
+            + ((string.IsNullOrEmpty(e.Parens) ? "" : $"({e.Parens}) ")
+            + string.Join(" ", e.Definitions.Select(
+                def => def.Symbol + (string.IsNullOrEmpty(def.Grammar) ? "" : $" {def.Grammar}"))))
                 .Replace("<i>", "_")
                 .Replace("</i>", "_")
                 .Replace("<b>", "__")
@@ -283,7 +286,7 @@ namespace DocxToHtmlConverter
         
         static Entry Parse(string line, int number)
         {
-            Match match = Regex.Match(line, @"^\s*(?<spade>♠*)\s*<b>(<sup>[ -0123456789]+</sup>)?(?<lemma>[- а-яА-ЯёЁ\u0300\u0301]+:?)</b>\s*(?<rest>.+)$");
+            Match match = Regex.Match(line, @"^\s*(?<spade>♠*)\s*<b>(<sup>(?<num>[ -0123456789]+)</sup>)?(?<lemma>[- а-яА-ЯёЁ\u0300\u0301]+:?)</b>\s*(?<rest>.+)$");
             if (!match.Success) throw new Exception($"No match: ({number+1}) {line}");
             string parensSymbolGrammar = match.Groups["rest"].Value;
             (string symbolGrammar, string parens) = SplitParens(parensSymbolGrammar);
@@ -300,7 +303,9 @@ namespace DocxToHtmlConverter
             }
             return new Entry
             {
+                Numbers = match.Groups["num"].Value.Trim(),
                 Lemma = match.Groups["lemma"].Value,
+                Parens = parens,
                 Definitions = definitions
             };
         }
@@ -359,8 +364,8 @@ namespace DocxToHtmlConverter
 
                 case "<i>без удар.</i>":
                 case "<i>часто без удар.</i>":
-                case "<i>нормально без удар.</i>":
                 case "<i>часто без удар.</i>: еще":
+                case "<i>нормально без удар.</i>":
                     break;
                 default:
                     throw new Exception(parens);
