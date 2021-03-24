@@ -9,19 +9,102 @@ using HtmlAgilityPack;
 
 namespace DocxToHtmlConverter
 {
-    static class Program
+    public static class Program
     {
         static void Main(string [] args)
         {
             var stopwatch = Stopwatch.StartNew();
 
-            File.WriteAllLines(args[1],
-                ConvertNames(File.ReadLines(@"..\..\..\names.txt")).Select(ToOutputFormat));
+            List<Entry> names = ConvertNames(File.ReadLines(@"../../../names.txt")).ToList();
+            List<Entry> common = ConvertCommonPart(GetCleanHtml(@"../../../all.html")).ToList();
 
-            File.WriteAllLines(args[0], 
-                ConvertCommonPart(GetCleanHtml(@"..\..\..\all.html")).Select(ToOutputFormat));
+            string configPath = args.Length > 0 ? args[0] : "../../example-config.csv";
             
+            foreach (Config config in ReadConfig(configPath))
+            {
+                var entries = config.Set switch
+                {
+                    "names" => names,
+                    "common" => common,
+                    _ => throw new Exception()
+                };
+
+                Func<Entry, string> format = config.Format switch
+                {
+                    "1" => ToOutputFormat,
+                    "2" => ToOutputFormat2,
+                    _ => throw new Exception()
+                };
+
+                IEnumerable<string> lines = entries.Select(format);
+
+                Console.WriteLine("Saving " + config.Path);
+                
+                switch (config.Layout)
+                {
+                    case "one-file":
+                        File.WriteAllLines(config.Path, lines);
+                        break;
+                    case "four-files":
+                        SaveAsFourFiles(lines, config.Path);
+                        break;
+                    case "AZ":
+                        SaveAsAZ(entries, config.Path, format);
+                        break;
+                    default:
+                        throw new Exception();
+                }
+            }
+
             Console.WriteLine($"{stopwatch.Elapsed.TotalMilliseconds:N0} ms");
+        }
+
+        private static void SaveAsFourFiles(IEnumerable<string> lines, string path)
+        {
+            var batches = lines
+                .BatchByLen(565000)
+                .Select((b, i) => new {Num = i, Entries = b});
+            
+            foreach (var batch in batches)
+            {
+                File.WriteAllLines(string.Format(path, batch.Num + 1), batch.Entries);
+            }
+        }
+
+        static IEnumerable<Config> ReadConfig(string path) =>
+            from csvLine in File.ReadLines(path)
+            let line = csvLine.Split(',')
+            select new Config(line[0], line[1], line[2], line[3]);
+
+        private static void SaveAsAZ(IEnumerable<Entry> entries, string directory, Func<Entry, string> toOutputFormat)
+        {
+            foreach (var group in entries.GroupBy(GetGroupName))
+            {
+                string path = Path.Combine(directory, group.Key + ".txt");
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                File.WriteAllLines(path, group.Select(toOutputFormat));
+            }
+        }
+
+        private static string GetGroupName(Entry e) =>
+            (e.Definitions.Any(d => d.Symbol.EndsWith("св"))
+                ? "Глаголы"
+                : "Нарицательные") + "/" + char.ToUpper(GetLastLetter(e.Lemma));
+
+        private static char GetLastLetter(string lemma) => 
+            RemoveParens(lemma)
+                .TrimEnd(':')
+                .TrimEnd(',')
+                .TrimEnd('\u0301')
+                .TrimEnd('\u0300')
+                .Last();
+
+        private static string RemoveParens(string lemma)
+        {
+            int i = lemma.LastIndexOf(')');
+            return i == -1
+                ? lemma
+                : (lemma.Substring(0, lemma.IndexOf('(')) + lemma.Substring(i + 1)).Trim();
         }
 
         private static IEnumerable<Entry> ConvertNames(IEnumerable<string> lines) =>
@@ -151,9 +234,19 @@ namespace DocxToHtmlConverter
             text = text.Replace("в́скри́кнуть", "вскри́кнуть");
             text = text.Replace("зу́б́ча́тый", "зу́бча́тый");
             text = text.Replace("<i>кф (затрудн.</i>)", "<i>кф (затрудн.)</i>");
+            text = Regex.Replace(text, 
+                @"\(<i>([^<]+)\), ",
+                @"(<i>$1</i>), <i>");
+            text = Regex.Replace(text, 
+                @" \(([^<)]+)</i>\)",
+                "</i> (<i>$1</i>)");
+            text = text.Replace("словам</i>и:", "словами</i>:");
 
             text = Regex.Replace(text, @"<i>Р\. мн\. затрудн\. \((.+)</i>\)", "<i>Р. мн. затрудн.</i> (<i>$1</i>)");
             text = Regex.Replace(text, ";<br/>\\s*♠?\\s*<b>", "\r\n♠ <b>");
+            text = text.Replace("<i>, ", ", <i>");
+            text = text.Replace("за́ два;́ на́ два", "за́ два; на́ два");
+            
             return text;
         }
 
@@ -174,8 +267,20 @@ namespace DocxToHtmlConverter
 
         private static string ToOutputFormat(Entry e) =>
             $"{e.Lemma}|" + string.Join("<br/>", e.Definitions.Select(
-                def => $"{def.Symbol}" + (string.IsNullOrEmpty(def.Grammar) ? "" : $"|{def.Grammar}")));
+                def => def.Symbol + (string.IsNullOrEmpty(def.Grammar) ? "" : $"|{def.Grammar}")));
+        
+        private static string ToOutputFormat2(Entry e) =>
+            $"{e.Lemma} " + string.Join(" ", e.Definitions.Select(
+                def => def.Symbol + (string.IsNullOrEmpty(def.Grammar) ? "" : $" {def.Grammar}")))
+                .Replace("<i>", "_")
+                .Replace("</i>", "_")
+                .Replace("<b>", "__")
+                .Replace("</b>", "__")
+                .RegexReplace("<sup>(.+)</sup>", "$1/");
 
+        static string RegexReplace(this string input, string pattern, string replacement)
+            => Regex.Replace(input, pattern, replacement);
+        
         static Entry Parse(string line, int number)
         {
             Match match = Regex.Match(line, @"^\s*(?<spade>♠*)\s*<b>(<sup>[ -0123456789]+</sup>)?(?<lemma>[- а-яА-ЯёЁ\u0300\u0301]+:?)</b>\s*(?<rest>.+)$");
@@ -202,12 +307,12 @@ namespace DocxToHtmlConverter
 
         private static Definition ParseDefinition(string line, string symbolGrammar)
         {
-            Match match1 = Regex.Match(symbolGrammar, $@"^♠?\s*(?<symbol>{FullestSymbolsRegex}(,|:|;)?)(\s+(?<grammar>.*))?$");
-            if (!match1.Success) throw new Exception("Regex failed: " + line);
+            Match match = Regex.Match(symbolGrammar, $@"^♠?\s*(?<symbol>{FullestSymbolsRegex}(,|:|;)?)(\s+(?<grammar>.*))?$");
+            if (!match.Success) throw new Exception("Regex failed: " + line);
             var def = new Definition
             {
-                Symbol = match1.Groups["symbol"].Value.TrimEnd(),
-                Grammar = match1.Groups["grammar"].Value
+                Symbol = match.Groups["symbol"].Value.TrimEnd(),
+                Grammar = match.Groups["grammar"].Value
             };
             return def;
         }
@@ -292,17 +397,6 @@ namespace DocxToHtmlConverter
         {
             int i=0;
             return Regex.Replace(s, "_", _ => ++i % 2 == 1 ? "<i>" : "</i>");
-        }
-
-        public class Definition
-        {
-            public string Symbol, Grammar;
-        }
-        
-        public class Entry
-        {
-            public string Lemma;
-            public IEnumerable<Definition> Definitions;
         }
 
         private static IEnumerable<string> CleanHtml(HtmlDocument doc) =>

@@ -1,10 +1,10 @@
 ﻿using HtmlAgilityPack;
 using NUnit.Framework;
 
-namespace DocxToHtmlConverter
+namespace DocxToHtmlConverter.Tests
 {
     [TestFixture]
-    public class Tests
+    public class EndToEndTests
     {
         [Test]
         public void Test1()
