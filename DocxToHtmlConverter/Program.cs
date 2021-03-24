@@ -279,6 +279,8 @@ namespace DocxToHtmlConverter
                 .Replace("</i>", "_")
                 .Replace("<b>", "__")
                 .Replace("</b>", "__")
+                .Replace("&lt;", "<")
+                .Replace("&gt;", ">")
                 .RegexReplace("<sup>(.+)</sup>", "$1/");
 
         static string RegexReplace(this string input, string pattern, string replacement)
