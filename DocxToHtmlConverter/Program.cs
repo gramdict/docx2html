@@ -18,7 +18,7 @@ namespace DocxToHtmlConverter
             List<Entry> names = ConvertNames(File.ReadLines(@"../../../names.txt")).ToList();
             List<Entry> common = ConvertCommonPart(GetCleanHtml(@"../../../all.html")).ToList();
 
-            string configPath = args.Length > 0 ? args[0] : "../../example-config.csv";
+            string configPath = args.Length > 0 ? args[0] : "../../gramdict-config.csv";
             
             foreach (Config config in ReadConfig(configPath))
             {
@@ -31,8 +31,8 @@ namespace DocxToHtmlConverter
 
                 Func<Entry, string> format = config.Format switch
                 {
-                    "1" => ToOutputFormat,
-                    "2" => ToOutputFormat2,
+                    "html" => ToOutputFormat,
+                    "txt" => ToOutputFormat2,
                     _ => throw new Exception()
                 };
 
@@ -89,7 +89,13 @@ namespace DocxToHtmlConverter
         private static string GetGroupName(Entry e) =>
             (e.Definitions.Any(d => d.Symbol.EndsWith("св"))
                 ? "Глаголы"
-                : "Нарицательные") + "/" + char.ToUpper(GetLastLetter(e.Lemma));
+                : "Нарицательные") + "/" + GetFilename(e.Lemma);
+
+        private static char GetFilename(string lemma)
+        {
+            char c = char.ToUpper(GetLastLetter(lemma));
+            return c == 'Ё' ? 'Е' : c;
+        }
 
         private static char GetLastLetter(string lemma) => 
             RemoveParens(lemma)
