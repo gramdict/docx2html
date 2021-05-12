@@ -246,6 +246,7 @@ namespace DocxToHtmlConverter
             text = Regex.Replace(text, ";<br/>\\s*♠?\\s*<b>", "\r\n♠ <b>");
             text = text.Replace("<i>, ", ", <i>");
             text = text.Replace("за́ два;́ на́ два", "за́ два; на́ два");
+            text = text.Replace("фо̀тоискусство", "фо̀тоиску́сство");
             
             return text;
         }
