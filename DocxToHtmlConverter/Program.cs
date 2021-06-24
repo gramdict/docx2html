@@ -255,6 +255,8 @@ namespace DocxToHtmlConverter
             text = text.Replace("фо̀тоискусство", "фо̀тоиску́сство");
             text = text.Replace("<i>́</i>", "");
             text = Regex.Replace(text, @"(\d)\(<i>([^)]+)</i>\)", "$1($2)");
+            text = text.Replace("вы́ел; -а;", "вы́ел, -а;");
+            text = text.Replace(" -</i>", "</i> -");
             
             return text;
         }
