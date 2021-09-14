@@ -29,5 +29,12 @@ normal'>собир.</i>)<o:p></o:p></span></u></p>
             doc.LoadHtml(@"<b><sup style='font-family:""ZapfDingbats BT""'>t</sup><sup> 1-4</sup>ла́ва</b> ж 1a");
             Assert.AreEqual("♠<sup> 1-4</sup>ла́ва", Program.ToText(doc.DocumentNode.FirstChild));
         }
+
+        [Test]
+        [TestCase("✧ ́зу́б", "✧ зу́б")]
+        public void RemoveStressMarksOverNonVowelsTest(string input, string expectedOutput)
+        {
+            Assert.AreEqual(expectedOutput, Program.RemoveStressMarksOverNonVowels(input));
+        }
     }
 }

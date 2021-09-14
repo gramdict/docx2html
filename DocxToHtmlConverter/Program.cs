@@ -263,8 +263,26 @@ namespace DocxToHtmlConverter
             text = text.Replace(
                 "(<i>определенный); не смешивать с прич. страд. от</i> ",
                 "(<i>определенный</i>); <i>не смешивать с прич. страд. от</i> ");
-            
+            text = text.Replace("(-д́ить)", "(-ди́ть)");
+            text = text.Replace("(-с́ить)", "(-си́ть)");
+            text = text.Replace("(-с́тить)", "(-сти́ть)");
+            text = text.Replace("дожин́ать)", "дожина́ть)");
+            text = text.Replace("пере́вёр́ты́вать", "перевёртывать");
+            text = text.Replace("перево́ра́чивать", "перевора́чивать");
+            text = text.Replace("раз́вёр́ты́вать", "развёртывать");
+            text = text.Replace("вы́про́ки́ну́ть́ся", "вы́прокинуться");
+            text = text.Replace("п́од́ъехать", "подъе́хать");
+            text = RemoveStressMarksOverNonVowels(text);
+            text = text.Replace("<b></b>", "");
+            text = text.Replace("</i><i>", "");
+            text = text.Replace("</b><b>", "");
+            text = text.Replace("мещё́ра", "мещёра");
             return text;
+        }
+
+        public static string RemoveStressMarksOverNonVowels(string text)
+        {
+            return Regex.Replace(text, "([^аоуэыяёюеи])\u0301", "$1", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
         }
 
         private static string GetCleanHtml(string filePath)
