@@ -257,6 +257,12 @@ namespace DocxToHtmlConverter
             text = Regex.Replace(text, @"(\d)\(<i>([^)]+)</i>\)", "$1($2)");
             text = text.Replace("вы́ел; -а;", "вы́ел, -а;");
             text = text.Replace(" -</i>", "</i> -");
+            text = text.Replace(
+                "(<i>этот); не смешивать с прич. страд. от</i> ",
+                "(<i>этот</i>); <i>не смешивать с прич. страд. от</i> ");
+            text = text.Replace(
+                "(<i>определенный); не смешивать с прич. страд. от</i> ",
+                "(<i>определенный</i>); <i>не смешивать с прич. страд. от</i> ");
             
             return text;
         }
