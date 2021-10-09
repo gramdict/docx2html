@@ -273,10 +273,17 @@ namespace DocxToHtmlConverter
             text = text.Replace("вы́про́ки́ну́ть́ся", "вы́прокинуться");
             text = text.Replace("п́од́ъехать", "подъе́хать");
             text = RemoveStressMarksOverNonVowels(text);
+            text = text.Replace("занумеро́вы́вать", "занумеро́вывать");
+            text = text.Replace("пе́ре́ну́ме́ро́вывать", "перенумеро́вывать");
+            text = text.Replace("пронумеро́вы́вать", "пронумеро́вывать");
+            text = text.Replace("заноме́ро́вывать", "заномеро́вывать");
+            text = text.Replace("пе́ре́номеро́вывать", "переномеро́вывать");
+            text = text.Replace("про́но́ме́ро́вы́вать", "прономеро́вывать");
             text = text.Replace("<b></b>", "");
             text = text.Replace("</i><i>", "");
             text = text.Replace("</b><b>", "");
             text = text.Replace("мещё́ра", "мещёра");
+            text = Regex.Replace(text, @"\(<i>([^)]+)\); см\. также</i>", "(<i>$1</i>); <i>см. также</i>");
             return text;
         }
 
