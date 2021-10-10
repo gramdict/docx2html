@@ -18,9 +18,7 @@ namespace DocxToHtmlConverter
             List<Entry> names = ConvertNames(File.ReadLines(@"../../../names.txt")).ToList();
             List<Entry> common = ConvertCommonPart(GetCleanHtml(@"../../../all.html")).ToList();
 
-            string configPath = args.Length > 0 ? args[0] : "../../gramdict-config.csv";
-            
-            foreach (Config config in ReadConfig(configPath))
+            foreach (Config config in args.SelectMany(ReadConfig))
             {
                 var entries = config.Set switch
                 {
