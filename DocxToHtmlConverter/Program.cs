@@ -314,8 +314,9 @@ namespace DocxToHtmlConverter
             (string.IsNullOrEmpty(e.Numbers) ? "" : e.Numbers + "/") +
             $"{e.Lemma} " 
             + ((string.IsNullOrEmpty(e.Parens) ? "" : $"({e.Parens}) ")
-            + string.Join(" ", e.Definitions.Select(
+            + string.Join("; ", e.Definitions.Select(
                 def => def.Symbol + (string.IsNullOrEmpty(def.Grammar) ? "" : $" {def.Grammar}"))))
+                .Replace(";;", ";")
                 .Replace("<i>", "_")
                 .Replace("</i>", "_")
                 .Replace("<b>", "__")
