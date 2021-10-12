@@ -286,6 +286,8 @@ namespace DocxToHtmlConverter
             text = text.Replace("<b>◑</b>", "◑");
             text = text.Replace("љ", "");
             text = text.Replace("с<i>пряж", "<i>спряж");
+            text = text.Replace("(<i>сустав)</i>", "(<i>сустав</i>)");
+            text = text.Replace("(<i>см.) и</i>", "(<i>см.</i>) <i>и</i>");
             return text;
         }
 
