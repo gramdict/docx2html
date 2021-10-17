@@ -277,6 +277,7 @@ namespace DocxToHtmlConverter
             text = text.Replace("заноме́ро́вывать", "заномеро́вывать");
             text = text.Replace("пе́ре́номеро́вывать", "переномеро́вывать");
             text = text.Replace("про́но́ме́ро́вы́вать", "прономеро́вывать");
+            text = text.Replace("<sup></sup>", "");
             text = text.Replace("<b></b>", "");
             text = text.Replace("</i><i>", "");
             text = text.Replace("</b><b>", "");
@@ -289,6 +290,7 @@ namespace DocxToHtmlConverter
             text = text.Replace("(<i>сустав)</i>", "(<i>сустав</i>)");
             text = text.Replace("(<i>см.) и</i>", "(<i>см.</i>) <i>и</i>");
             text = Regex.Replace(text, @"c (\d)", "с $1");
+            text = text.Replace("(<i>о цене) и</i>", "(<i>о цене</i>) <i>и</i>");
             return text;
         }
 
