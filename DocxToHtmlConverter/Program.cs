@@ -85,7 +85,7 @@ namespace DocxToHtmlConverter
         }
 
         private static string GetGroupName(Entry e) =>
-            (e.Definitions.Any(d => d.Symbol.EndsWith("св"))
+            (e.Definitions.Any(d => d.Symbol.Trim(',').EndsWith("св"))
                 ? "Глаголы"
                 : "Нарицательные") + "/" + GetFilename(e.Lemma);
 
