@@ -113,6 +113,7 @@ namespace DocxToHtmlConverter
 
         private static IEnumerable<Entry> ConvertNames(IEnumerable<string> lines) =>
             lines
+                .Select(NormaliseWhitespace)
                 .Except(new[]
                 {
                     "(Вели́кий) Но́вгород (п +) м 1a",
@@ -141,6 +142,9 @@ namespace DocxToHtmlConverter
                 .Select(Parse);
             return entries;
         }
+
+        private static string NormaliseWhitespace(string line) => 
+            Regex.Replace(line.Trim(), "\\s+", " ");
 
         private static string CorrectHtml(string text)
         {
@@ -350,14 +354,15 @@ namespace DocxToHtmlConverter
             }
             else
             {
-                definitions = symbolGrammar.Split("<br/>")
+                definitions = NormaliseWhitespace(symbolGrammar)
+                    .Split("<br/>")
                     .Select(def => ParseDefinition(line, def))
                     .ToList();
             }
             return new Entry
             {
                 Numbers = match.Groups["num"].Value.Trim(),
-                Lemma = match.Groups["lemma"].Value,
+                Lemma = match.Groups["lemma"].Value.Trim(),
                 Parens = parens,
                 Definitions = definitions
             };
