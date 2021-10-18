@@ -291,6 +291,7 @@ namespace DocxToHtmlConverter
             text = text.Replace("(<i>см.) и</i>", "(<i>см.</i>) <i>и</i>");
             text = Regex.Replace(text, @"c (\d)", "с $1");
             text = text.Replace("(<i>о цене) и</i>", "(<i>о цене</i>) <i>и</i>");
+            text = text.Replace("<i>повел. нет,</i>", "<i>повел. нет</i>,");
             return text;
         }
 
