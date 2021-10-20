@@ -298,6 +298,11 @@ namespace DocxToHtmlConverter
             text = Regex.Replace(text, @"c (\d)", "с $1");
             text = text.Replace("(<i>о цене) и</i>", "(<i>о цене</i>) <i>и</i>");
             text = text.Replace("<i>повел. нет,</i>", "<i>повел. нет</i>,");
+            text = text.Replace("△а", "△a");
+            text = text.Replace("<i>прич. прош. нет (предположить; признать</i>",
+                "<i>прич. прош. нет</i> (<i>предположить; признать</i>");
+            text = text.Replace("<i>,</i>", ",");
+            text = Regex.Replace(text, ",([^ <])", ", $1"); // add space after comma
             return text;
         }
 
