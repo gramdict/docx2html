@@ -303,7 +303,10 @@ namespace DocxToHtmlConverter
                 "<i>прич. прош. нет</i> (<i>предположить; признать</i>");
             text = text.Replace("<i>,</i>", ",");
             text = Regex.Replace(text, ",([^ <])", ", $1"); // add space after comma
-            text = text.Replace("урожай</i>»", "урожай»</i>");
+            text = text.Replace("</i>»", "»</i>");
+            text = text.Replace("св △ ", "св △");
+            text = text.Replace("нп △ ", "нп △");
+            text = text.Replace("<i>в св) и</i>", "<i>в св</i>) <i>и</i>");
             return text;
         }
 
