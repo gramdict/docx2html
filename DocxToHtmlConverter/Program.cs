@@ -309,6 +309,8 @@ namespace DocxToHtmlConverter
             text = text.Replace("<i>в св) и</i>", "<i>в св</i>) <i>и</i>");
             text = Regex.Replace(text, @"◑(.)\(<i>([^<]*)</i>\)", "◑$1($2)");
             text = text.Replace("|плется //щи́пется", "|плется //-пется");
+            text = text.Replace("</i> — <i>", " — ");
+            text = text.Replace("), спряж. см.</i>", "</i>), <i>спряж. см.</i>");
             return text;
         }
 
