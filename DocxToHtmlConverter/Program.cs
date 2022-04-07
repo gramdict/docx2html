@@ -311,6 +311,8 @@ namespace DocxToHtmlConverter
             text = text.Replace("|плется //щи́пется", "|плется //-пется");
             text = text.Replace("</i> — <i>", " — ");
             text = text.Replace("), спряж. см.</i>", "</i>), <i>спряж. см.</i>");
+            text = text.Replace("заг|оню́, -онит", "заг|оню́, -о́нит");
+            text = text.Replace("a '", "a'");
             return text;
         }
 
