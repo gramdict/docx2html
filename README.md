@@ -26,7 +26,7 @@
 Генерируемые программой файлы сохраняются в репозитории [zalizniak-2010](https://github.com/gramdict/zalizniak-2010).
 При внесении правок в репозиторий zalizniak-2010 аналогичные правки вносятся в функцию исправления ошибок CorrectHtml().
 
-[Файлы конфигурации](https://github.com/gramdict/docx2html/blob/master/DocxToHtmlConverter/gramdict-config.csv)
+[Файл конфигурации](https://github.com/gramdict/docx2html/blob/master/DocxToHtmlConverter/gramdict-config.csv)
 (имя которого является единственным аргументом командной строки)
 задает, в каком виде сохраняются выходные файлы (HTML или текст, одним файлом или набором файлов от А.txt до Я.txt).
 
