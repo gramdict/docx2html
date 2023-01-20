@@ -181,6 +181,9 @@ namespace DocxToHtmlConverter
             text = text.Replace(
                 "погрести́</b> св 7b/b (-б-), ё (<i>грести некоторое время</i>)",
                 "погрести́</b> св нп 7b/b (-б-), ё (<i>грести некоторое время</i>)");
+            text = text.Replace(
+                "<b>гнести́</b> нсв 7b/b (-т-)⑨",
+                "<b>гнести́</b> нсв 7b/b (-т-)");
             return text;
         }
     }
