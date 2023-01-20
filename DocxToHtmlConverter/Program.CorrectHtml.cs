@@ -178,6 +178,9 @@ namespace DocxToHtmlConverter
             text = text.Replace(
                 "<b>уня́ться</b> св 14b/c ",
                 "<b>уня́ться</b> св 14b/c'' ");
+            text = text.Replace(
+                "погрести́</b> св 7b/b (-б-), ё (<i>грести некоторое время</i>)",
+                "погрести́</b> св нп 7b/b (-б-), ё (<i>грести некоторое время</i>)");
             return text;
         }
     }
