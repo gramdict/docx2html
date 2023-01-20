@@ -169,6 +169,9 @@ namespace DocxToHtmlConverter
             text = text.Replace("), спряж. см.</i>", "</i>), <i>спряж. см.</i>");
             text = text.Replace("заг|оню́, -онит", "заг|оню́, -о́нит");
             text = text.Replace("a '", "a'");
+            text = text.Replace(
+                "<b>отсня́ться</b> св 14с/c''",
+                "<b>отсня́ться</b> св 14с/c'' (-им-)");
             return text;
         }
     }
