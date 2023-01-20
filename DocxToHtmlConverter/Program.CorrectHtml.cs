@@ -172,6 +172,9 @@ namespace DocxToHtmlConverter
             text = text.Replace(
                 "<b>отсня́ться</b> св 14с/c''",
                 "<b>отсня́ться</b> св 14с/c'' (-им-)");
+            text = text.Replace(
+                "струга́ться</b>] ◑1(-а́-)",
+                "струга́ться</b>] ◑I(-а́-)");
             return text;
         }
     }
