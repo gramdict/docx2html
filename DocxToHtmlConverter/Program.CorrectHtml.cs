@@ -184,6 +184,7 @@ namespace DocxToHtmlConverter
             text = text.Replace(
                 "<b>гнести́</b> нсв 7b/b (-т-)⑨",
                 "<b>гнести́</b> нсв 7b/b (-т-)");
+            text = text.Replace(" //", "//");
             return text;
         }
     }
