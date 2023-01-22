@@ -185,6 +185,33 @@ namespace DocxToHtmlConverter
                 "<b>гнести́</b> нсв 7b/b (-т-)⑨",
                 "<b>гнести́</b> нсв 7b/b (-т-)");
             text = text.Replace(" //", "//");
+            text = text.Replace(
+                "<b>сжева́ть</b> св 2b, ё ◑1",
+                "<b>сжева́ть</b> св 2b, ё ◑I"
+            );
+            text = text.Replace(
+                "уволочи́ть</b>] ◑1(-а-)",
+                "уволочи́ть</b>] ◑I(-а-)");
+            text = text.Replace(
+                "<b>отчленя́ть</b> св",
+                "<b>отчленя́ть</b> нсв");
+            text = text.Replace("ж 8з", "ж 8a");
+            text = text.Replace("пешо́чком</b>] (", "пешо́чком</b> (");
+            text = text.Replace("(<i>бежать, минуя что-л.</i> ◑5", "(<i>бежать, минуя что-л.</i>) ◑5");
+            text = text.Replace("◑I(-а-)", "◑I(-а́-)");
+            text = text.Replace("), Р.</i>", "</i>), <i>Р.</i>");
+            text = text.Replace("(-c-)", "(-с-)");
+            text = text.Replace("4с", "4c");
+            text = text.Replace("lа", "1a");
+            text = text.Replace("1а", "1a");
+            text = text.Replace(
+                "(дать сигнал флагом; кончить махать)",
+                " (<i>дать сигнал флагом; кончить махать</i>)");
+            text = text.Replace("созрев<i>а</i>ть", "созревать");
+            text = text.Replace("cплю́щивать", "сплю́щивать");
+            text = text.Replace("созрев</i>а<i>ть", "созревать");
+            text = text.Replace("<i>В.=И.</i>)", "<i>В.=И.</i>");
+            text = text.Replace("<b>чихну́ть</b> св нп 3b✕", "<b>чихну́ть</b> св нп 3b");
             return text;
         }
     }
