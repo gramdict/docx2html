@@ -201,6 +201,11 @@ namespace DocxToHtmlConverter
             text = text.Replace("◑I(-а-)", "◑I(-а́-)");
             text = text.Replace("), Р.</i>", "</i>), <i>Р.</i>");
             text = text.Replace("(-c-)", "(-с-)");
+            text = text.Replace("</i>=<i>", "=");
+            text = text.Replace("</i> = <i>", " = ");
+            text = text.Replace("</i>= <i>", " = ");
+            text = text.Replace("; см.", "</i>; <i>см.");
+            text = text.Replace("<i>пф нет (", "<i>пф нет</i> (<i>");
             text = text.Replace("4с", "4c");
             text = text.Replace("lа", "1a");
             text = text.Replace("1а", "1a");
