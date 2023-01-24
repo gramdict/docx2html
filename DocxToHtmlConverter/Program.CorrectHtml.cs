@@ -213,6 +213,7 @@ namespace DocxToHtmlConverter
             text = text.Replace("<i>В.=И.</i>)", "<i>В.=И.</i>");
             text = text.Replace("<b>чихну́ть</b> св нп 3b✕", "<b>чихну́ть</b> св нп 3b");
             text = text.Replace("4c [(<i>в ", "4c [<i>в "); // всходи́ть
+            text = text.Replace("п b", "п 1b");
             return text;
         }
     }
