@@ -220,11 +220,11 @@ namespace DocxToHtmlConverter
             text = text.Replace("4c [(<i>в ", "4c [<i>в "); // всходи́ть
             text = text.Replace("п b", "п 1b");
             text = text.Replace("]</b>", "</b>]");
-            //text = text.Replace("</i> = <i>", " = ");
-            //text = text.Replace("</i>=<i>", "=");
-            //text = text.Replace("; см.", "</i>; <i>см.");
             text = text.Replace("*/полумиллио́н", "*полумиллио́н");
             text = text.Replace("’", "’"); // normalise apostrophes
+            text = text.Replace("о̀б̀щѐза̀водско́й", "о̀бщезаводско́й");
+            text = text.Replace("мѐж̀за̀во̀дско́й", "мѐжзаводско́й");
+            text = text.Replace("внутрѝза̀вод̀с̀ко́й", "внутрѝзаводско́й");
             return text;
         }
     }
