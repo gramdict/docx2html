@@ -225,6 +225,7 @@ namespace DocxToHtmlConverter
             text = text.Replace("о̀б̀щѐза̀водско́й", "о̀бщезаводско́й");
             text = text.Replace("мѐж̀за̀во̀дско́й", "мѐжзаводско́й");
             text = text.Replace("внутрѝза̀вод̀с̀ко́й", "внутрѝзаводско́й");
+            text = text.Replace("<sup>*</sup>", "*");
             return text;
         }
     }
