@@ -85,11 +85,9 @@ namespace DocxToHtmlConverter
         }
 
         private static string GetGroupName(Entry e) =>
-            Path.Combine(
-                e.Definitions.Any(d => d.Symbol.Trim(',').EndsWith("св"))
-                    ? "Глаголы"
-                    : "Нарицательные",
-                GetFilename(e.Lemma).ToString());
+            Path.Combine(IsVerb(e) ? "Глаголы" : "Нарицательные", GetFilename(e.Lemma).ToString());
+
+        private static bool IsVerb(Entry e) => e.Definitions.Any(d => d.Symbol.Trim(',').Trim(';').EndsWith("св"));
 
         private static char GetFilename(string lemma)
         {
