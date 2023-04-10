@@ -228,6 +228,8 @@ namespace DocxToHtmlConverter
             text = text.Replace("внутрѝза̀вод̀с̀ко́й", "внутрѝзаводско́й");
             text = text.Replace("<sup>*</sup>", "*");
             text = text.Replace("наго́ру", "на го́ру");
+            text = text.Replace("колготи́ться</b> нсв 4a", "колготи́ться</b> нсв 4b");
+            text = text.Replace("напра́вить</b> св 4a◑II", "напра́вить</b> св 4a ◑II");
             
             return text;
         }
