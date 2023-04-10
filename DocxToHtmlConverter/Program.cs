@@ -173,17 +173,19 @@ namespace DocxToHtmlConverter
         private static string ToOutputFormat2(Entry e) =>
             (string.IsNullOrEmpty(e.Numbers) ? "" : e.Numbers + "/") +
             $"{e.Lemma} " 
-            + ((string.IsNullOrEmpty(e.Parens) ? "" : $"({e.Parens}) ")
-            + string.Join("; ", e.Definitions.Select(
-                def => def.Symbol + (string.IsNullOrEmpty(def.Grammar) ? "" : $" {def.Grammar}"))))
-                .Replace("<i>", "_")
-                .Replace("</i>", "_")
-                .Replace("<b>", "__")
-                .Replace("</b>", "__")
-                .Replace("&lt;", "<")
-                .Replace("&gt;", ">")
-                .Replace(";;", ";")
-                .RegexReplace("<sup>([\\d-]+)</sup>", "$1/");
+            + ToOutputFormat2((string.IsNullOrEmpty(e.Parens) ? "" : $"({e.Parens}) ")
+                               + string.Join("; ", e.Definitions.Select(
+                                   def => def.Symbol + (string.IsNullOrEmpty(def.Grammar) ? "" : $" {def.Grammar}"))));
+
+        private static string ToOutputFormat2(string text) => text
+            .Replace("<i>", "_")
+            .Replace("</i>", "_")
+            .Replace("<b>", "__")
+            .Replace("</b>", "__")
+            .Replace("&lt;", "<")
+            .Replace("&gt;", ">")
+            .Replace(";;", ";")
+            .RegexReplace("<sup>([\\d-]+)</sup>", "$1/");
 
         static string RegexReplace(this string input, string pattern, string replacement)
             => Regex.Replace(input, pattern, replacement);
